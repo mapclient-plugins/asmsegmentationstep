@@ -75,7 +75,14 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
 
         if self._gui:
             # start gui
-            pass
+            self._widget = MayaviASMSegmentationViewerWidget(self)
+            
+            # self._widget._ui.registerButton.clicked.connect(self._register)
+            # self._widget._ui.acceptButton.clicked.connect(self._doneExecution)
+            # self._widget._ui.abortButton.clicked.connect(self._abort)
+            # self._widget._ui.resetButton.clicked.connect(self._reset)
+            self._widget.setModal(True)
+            self._setCurrentWidget(self._widget)
         else:
             self._segment()
 
