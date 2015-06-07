@@ -30,7 +30,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         # Ports:
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
-                      'http://physiomeproject.org/workflow/1.0/rdf-schema#images'))
+                      'http://physiomeproject.org/workflow/1.0/rdf-schema#gias-scan'))
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
                       'ju#fieldworkmodel'))
@@ -90,7 +90,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
 
     def _loadParams(self):
         if self._config['paramFileLoc']=='':
-            paramFileLoc = os.path.join(os.path.dirname(__file__, 'default_params.ini'))
+            paramFileLoc = os.path.join(os.path.dirname(__file__), 'default_params.ini')
             self._segParams = configobj.ConfigObj(paramFileLoc, unrepr=True)
         else:
             self._segParams = configobj.ConfigObj(self._config['paramFileLoc'], unrepr=True)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1087</width>
-    <height>771</height>
+    <width>1177</width>
+    <height>722</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -101,15 +101,15 @@
          <item>
           <widget class="QToolBox" name="toolBox">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="page_fitting">
             <property name="geometry">
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>342</width>
-              <height>486</height>
+              <width>400</width>
+              <height>482</height>
              </rect>
             </property>
             <attribute name="label">
@@ -135,34 +135,24 @@
                 <item row="0" column="1">
                  <widget class="QSpinBox" name="spinBoxPCsToFit"/>
                 </item>
-                <item row="1" column="0">
+                <item row="2" column="0">
                  <widget class="QLabel" name="label_3">
                   <property name="text">
-                   <string>Model Discretisation:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="spinBoxSurfDisc"/>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>Mahalanobis Weight:</string>
+                   <string>Model Discretisation*:</string>
                   </property>
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinBoxMWeight"/>
+                 <widget class="QSpinBox" name="spinBoxSurfDisc"/>
                 </item>
-                <item row="3" column="0">
+                <item row="4" column="0">
                  <widget class="QLabel" name="label_7">
                   <property name="text">
-                   <string>Profile Extent:</string>
+                   <string>Profile Extent*:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
+                <item row="4" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
                    <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
@@ -172,14 +162,14 @@
                   </item>
                  </layout>
                 </item>
-                <item row="4" column="0">
+                <item row="5" column="0">
                  <widget class="QLabel" name="label_8">
                   <property name="text">
                    <string>Profile Model File:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
+                <item row="5" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QLineEdit" name="lineEdit"/>
@@ -193,27 +183,44 @@
                   </item>
                  </layout>
                 </item>
-                <item row="5" column="0">
+                <item row="6" column="0">
                  <widget class="QLabel" name="label">
                   <property name="text">
                    <string>Search Distance:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="6" column="1">
                  <widget class="QSpinBox" name="spinBox"/>
                 </item>
-                <item row="6" column="0">
+                <item row="7" column="0">
                  <widget class="QLabel" name="label_5">
                   <property name="text">
                    <string>Max Iterations:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="1">
+                <item row="7" column="1">
                  <widget class="QSpinBox" name="spinBoxMaxfev"/>
                 </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_4">
+                  <property name="text">
+                   <string>Mahalanobis Weight:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBoxMWeight"/>
+                </item>
                </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>*Must match the profile model</string>
+               </property>
               </widget>
              </item>
              <item>
@@ -302,7 +309,7 @@
               <x>0</x>
               <y>0</y>
               <width>332</width>
-              <height>499</height>
+              <height>450</height>
              </rect>
             </property>
             <attribute name="label">
@@ -428,7 +435,6 @@
   <tabstop>tableWidget</tabstop>
   <tabstop>spinBoxPCsToFit</tabstop>
   <tabstop>spinBoxSurfDisc</tabstop>
-  <tabstop>doubleSpinBoxMWeight</tabstop>
   <tabstop>doubleSpinBox</tabstop>
   <tabstop>doubleSpinBox_2</tabstop>
   <tabstop>lineEdit</tabstop>
