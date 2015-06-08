@@ -8,11 +8,14 @@ from PySide import QtGui
 from PySide import QtCore
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
-from mapclientplugins.asmsegmentationstep.configuredialog import ConfigureDialog
-# from configuredialog import ConfigureDialog
+# from mapclientplugins.asmsegmentationstep.configuredialog import ConfigureDialog
+# from mapclientplugins.asmsegmentationstep.mayaviasmsegmentationviewerwidget import MayaviASMSegmentationViewerWidget
+# from mapclientplugins.asmsegmentationstep import asmseg
 
-from mapclientplugins.asmsegmentationstep import asmseg
-# import asmseg
+from configuredialog import ConfigureDialog
+from mayaviasmsegmentationviewerwidget import MayaviASMSegmentationViewerWidget
+import asmseg
+
 import configobj
 import copy
 
@@ -61,6 +64,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         self._transformFinal = None
         self._pointCloudFinal = None
         self._segParams = None
+        self._asmOutput = None
 
     def execute(self):
         '''
@@ -98,16 +102,18 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         self._segParams['data_files']['ppc_filename'] = self._config['ppcFileLoc']
 
     def _segment(self):
-        segModel, segPoints, segTransform = asmseg.segment(
-                                                self._scan,
-                                                self._model,
-                                                self._shapepcs, 
-                                                self._segParams
-                                                )
+        segModel, segPoints,\
+        segTransform, asmOutput = asmseg.segment(
+                                                 self._scan,
+                                                 self._model,
+                                                 self._shapepcs, 
+                                                 self._segParams
+                                                 )
         self._modelFinal = segModel
         self._model = segModel
         self._pointCloudFinal = segPoints
         self._transformFinal = segTransform
+        self._asmOutput = asmOutput
 
     def setPortData(self, index, dataIn):
         '''

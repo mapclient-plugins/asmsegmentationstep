@@ -95,4 +95,4 @@ def segment(scan, model, shapepcs, config):
     if flipZ:
         scan.I = scan.I[:,:,::-1]
 
-    return model, dataASM, meshParamsASM 
+    return model, dataASM, meshParamsASM, asmOutput
