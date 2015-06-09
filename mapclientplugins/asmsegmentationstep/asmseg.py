@@ -6,6 +6,7 @@ implemented in GIAS and using Fieldwork models.
 import numpy as np
 import time
 from gias.musculoskeletal import fw_segmentation_tools as fst
+from gias.image_analysis import asm_segmentation as ASM
 
 class ParameterError(Exception):
     pass
@@ -13,6 +14,8 @@ class ParameterError(Exception):
 def segment(scan, model, shapepcs, config):
     # parse configs
     verbose = config['general']['verbose']
+    if verbose:
+        print config
 
     flipX = config['image']['flip_x']
     flipY = config['image']['flip_y']
@@ -45,6 +48,8 @@ def segment(scan, model, shapepcs, config):
                     'verbose': verbose,
                     })
     asmFitMWeight = asmConfigs['fit_mweight']
+    filterLandmarks = asmConfigs['filter_landmarks']
+    fitSize = asmConfigs['fit_size']
 
     #===========================================================================#
     t0 = time.time()
@@ -78,6 +83,11 @@ def segment(scan, model, shapepcs, config):
                                         'PCDPEP', asmParams.GD, SSM,
                                         np.arange(asmShapeModes), None,
                                         asmFitMWeight, verbose=verbose,
+                                        filterLandmarks=filterLandmarks,
+                                        doScale=fitSize,
+                                        landmarkTargets=None,
+                                        landmarkEvaluator=None,
+                                        landmarkWeights=None,
                                         )
 
     dataASM = asmOutput['segData']

@@ -107,9 +107,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-32</y>
+              <y>0</y>
               <width>408</width>
-              <height>482</height>
+              <height>529</height>
              </rect>
             </property>
             <attribute name="label">
@@ -135,41 +135,55 @@
                 <item row="0" column="1">
                  <widget class="QSpinBox" name="pcsToFitSpinBox"/>
                 </item>
-                <item row="2" column="0">
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_4">
+                  <property name="text">
+                   <string>Mahalanobis Weight:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="mWeightDblSpinBox"/>
+                </item>
+                <item row="4" column="0">
                  <widget class="QLabel" name="label_3">
                   <property name="text">
                    <string>Model Discretisation*:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
-                 <widget class="QSpinBox" name="surfDiscSpinBox"/>
-                </item>
-                <item row="4" column="0">
+                <item row="6" column="0">
                  <widget class="QLabel" name="label_7">
                   <property name="text">
                    <string>Profile Extent*:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
+                <item row="6" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
-                   <widget class="QDoubleSpinBox" name="pExtDblSpinBox1"/>
+                   <widget class="QDoubleSpinBox" name="pExtDblSpinBox1">
+                    <property name="minimum">
+                     <double>-1000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                   </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="pExtDblentSpinBox2"/>
+                   <widget class="QDoubleSpinBox" name="pExtDblSpinBox2"/>
                   </item>
                  </layout>
                 </item>
-                <item row="5" column="0">
+                <item row="8" column="0">
                  <widget class="QLabel" name="label_8">
                   <property name="text">
                    <string>Profile Model File:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="8" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QLineEdit" name="profileModelLineEdit"/>
@@ -183,35 +197,45 @@
                   </item>
                  </layout>
                 </item>
-                <item row="6" column="0">
+                <item row="9" column="0">
                  <widget class="QLabel" name="label">
                   <property name="text">
                    <string>Search Distance:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="1">
+                <item row="9" column="1">
                  <widget class="QSpinBox" name="searchDistSpinBox"/>
                 </item>
-                <item row="7" column="0">
+                <item row="10" column="0">
                  <widget class="QLabel" name="label_5">
                   <property name="text">
                    <string>Max Iterations:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="1">
+                <item row="10" column="1">
                  <widget class="QSpinBox" name="maxItSpinBox"/>
                 </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_4">
+                <item row="4" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <item>
+                   <widget class="QSpinBox" name="surfDiscSpinBox1"/>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="surfDiscSpinBox2"/>
+                  </item>
+                 </layout>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QLabel" name="label_9">
                   <property name="text">
-                   <string>Mahalanobis Weight:</string>
+                   <string>Profile Samples*:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QDoubleSpinBox" name="mWeightDblSpinBox"/>
+                <item row="7" column="1">
+                 <widget class="QSpinBox" name="profileSamplesSpinBox"/>
                 </item>
                </layout>
               </widget>
@@ -247,7 +271,7 @@
                 </widget>
                </item>
                <item row="0" column="0">
-                <widget class="QPushButton" name="fitButton">
+                <widget class="QPushButton" name="segButton">
                  <property name="text">
                   <string>Segment</string>
                  </property>
@@ -438,14 +462,16 @@
   <tabstop>tableWidget</tabstop>
   <tabstop>pcsToFitSpinBox</tabstop>
   <tabstop>mWeightDblSpinBox</tabstop>
-  <tabstop>surfDiscSpinBox</tabstop>
+  <tabstop>surfDiscSpinBox1</tabstop>
+  <tabstop>surfDiscSpinBox2</tabstop>
   <tabstop>pExtDblSpinBox1</tabstop>
-  <tabstop>pExtDblentSpinBox2</tabstop>
+  <tabstop>pExtDblSpinBox2</tabstop>
+  <tabstop>profileSamplesSpinBox</tabstop>
   <tabstop>profileModelLineEdit</tabstop>
   <tabstop>profileModelButton</tabstop>
   <tabstop>searchDistSpinBox</tabstop>
   <tabstop>maxItSpinBox</tabstop>
-  <tabstop>fitButton</tabstop>
+  <tabstop>segButton</tabstop>
   <tabstop>resetButton</tabstop>
   <tabstop>abortButton</tabstop>
   <tabstop>acceptButton</tabstop>

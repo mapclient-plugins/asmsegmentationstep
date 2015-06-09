@@ -23,11 +23,10 @@ os.environ['ETS_TOOLKIT'] = 'qt4'
 from PySide.QtGui import QDialog, QFileDialog, QDialogButtonBox,\
                          QAbstractItemView, QTableWidgetItem,\
                          QDoubleValidator
-from PySide.QtCore import Qt
-from PySide.QtCore import QThread, Signal
+from PySide.QtCore import Qt, QThread, Signal
 
-# from mapclientplugins.asmsegmentationtep.ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
-from ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
+from mapclientplugins.asmsegmentationstep.ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
+# from ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
 
 from traits.api import HasTraits, Instance, on_trait_change, \
     Int, Dict
@@ -36,6 +35,8 @@ from mappluginutils.mayaviviewer import MayaviViewerObjectsContainer, MayaviView
     MayaviViewerFieldworkModel, MayaviViewerLandmark, MayaviViewerImagePlane, colours
 
 import copy
+import numpy as np
+from gias.musculoskeletal import fw_segmentation_tools as fst
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''
@@ -62,7 +63,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
     _modelInitRenderArgs = {'color':(1,0,0)}
     _modelFinalRenderArgs = {'color':(1,1,0)}
     # _landmarkRenderArgs = {'mode':'sphere', 'scale_factor':5.0, 'color':(0,1,0)}
-    # _imageRenderArgs = {'vmax':2000, 'vmin':-200}
+    _imageRenderArgs = {'vmax':2000, 'vmin':-200}
     _GFD = [8,8]
 
     def __init__(self, step, parent=None):
@@ -110,7 +111,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         # self._ui.pExtDblSpinBox1.valueChanged.connect(self._saveConfig)
         # self._ui.pExtDblSpinBox2.valueChanged.connect(self._saveConfig)
         self._ui.profileModelLineEdit.textChanged.connect(self._profileModelFileEdited)
-        self._ui.profileModelButton.clicked(self._profileModelFileClicked)
+        self._ui.profileModelButton.clicked.connect(self._profileModelFileClicked)
         # self._ui.searchDistSpinBox.valueChanged.connect(self._saveConfig)
         # self._ui.maxItSpinBox.valueChanged.connect(self._saveConfig)
 
@@ -129,18 +130,34 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
     def _initViewerObjects(self):
         self._objects = MayaviViewerObjectsContainer()
+
+        I = np.array(self._step._scan.I)
+        if self._step._segParams['image']['flip_x']:
+            I = I[::-1,:,:]
+        if self._step._segParams['image']['flip_y']:
+            I = I[:,::-1,:]
+        if self._step._segParams['image']['flip_z']:
+            I = I[:,:,::-1]
         self._objects.addObject('image', 
                                 MayaviViewerImagePlane('image',
-                                                       self._step.image,
+                                                       I,
                                                        renderArgs=self._imageRenderArgs))
         self._objects.addObject('Initial Model',
                                 MayaviViewerFieldworkModel('Initial Model',
-                                                           self._step.modelInit,
+                                                           fst.makeImageSpaceGF(self._step._scan,
+                                                                                self._step._modelInit,
+                                                                                self._step._segParams['image']['neg_spacing'],
+                                                                                self._step._segParams['image']['z_shift']
+                                                                                ),
                                                            self._GFD,
                                                            renderArgs=self._modelInitRenderArgs))
         self._objects.addObject('Segmented Model',
                                 MayaviViewerFieldworkModel('Segmented Model',
-                                                           self._step._modelFinal,
+                                                           fst.makeImageSpaceGF(self._step._scan,
+                                                                                self._step._modelFinal,
+                                                                                self._step._segParams['image']['neg_spacing'],
+                                                                                self._step._segParams['image']['z_shift']
+                                                                                ),
                                                            self._GFD,
                                                            renderArgs=self._modelFinalRenderArgs))
         # self._objects.addObject('Segmented Points',
@@ -158,17 +175,21 @@ class MayaviASMSegmentationViewerWidget(QDialog):
     def _setupGui(self):
         self._ui.pcsToFitSpinBox.setSingleStep(1)
         self._ui.mWeightDblSpinBox.setSingleStep(0.1)
-        self._ui.surfDicsSpinBox.setSingleStep(1)
+        self._ui.surfDiscSpinBox1.setSingleStep(1)
+        self._ui.surfDiscSpinBox2.setSingleStep(1)
         self._ui.pExtDblSpinBox1.setSingleStep(0.1)
         self._ui.pExtDblSpinBox2.setSingleStep(0.1)
+        self._ui.profileSamplesSpinBox.setSingleStep(1)
         self._ui.searchDistSpinBox.setSingleStep(1)
         self._ui.maxItSpinBox.setSingleStep(1)
 
     def _saveConfig(self):
         self._step._segParams['ASM']['shape_modes'] = self._ui.pcsToFitSpinBox.value()
         self._step._segParams['ASM']['fit_mweight'] = self._ui.mWeightDblSpinBox.value()
-        self._step._segParams['ASM']['mesh_d'] = self._ui.surfDicsSpinBox.value()
+        self._step._segParams['ASM']['mesh_d'][0] = self._ui.surfDiscSpinBox1.value()
+        self._step._segParams['ASM']['mesh_d'][1] = self._ui.surfDiscSpinBox2.value()
         self._step._segParams['ASM']['n_lim'] = [self._ui.pExtDblSpinBox1.value(), self._ui.pExtDblSpinBox2.value()]
+        self._step._segParams['ASM']['n_d'] = self._ui.profileSamplesSpinBox.value()
         self._step._segParams['data_files']['ppc_filename'] = self._ui.profileModelLineEdit.text()
         self._step._segParams['ASM']['n_pad'] = self._ui.searchDistSpinBox.value()
         self._step._segParams['ASM']['max_it'] = self._ui.maxItSpinBox.value()
@@ -177,10 +198,12 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._previousProfileModelFile = self._step._segParams['data_files']['ppc_filename']
         self._ui.pcsToFitSpinBox.setValue(self._step._segParams['ASM']['shape_modes'])
         self._ui.mWeightDblSpinBox.setValue(self._step._segParams['ASM']['fit_mweight'])
-        self._ui.surfDicsSpinBox.setValue(self._step._segParams['ASM']['mesh_d'])
+        self._ui.surfDiscSpinBox1.setValue(self._step._segParams['ASM']['mesh_d'][0])
+        self._ui.surfDiscSpinBox2.setValue(self._step._segParams['ASM']['mesh_d'][1])
         self._ui.pExtDblSpinBox1.setValue(self._step._segParams['ASM']['n_lim'][0])
         self._ui.pExtDblSpinBox2.setValue(self._step._segParams['ASM']['n_lim'][1])
-        self._ui.profileModelLineEdit.settText(self._step._segParams['data_files']['ppc_filename'])
+        self._ui.profileSamplesSpinBox.setValue(self._step._segParams['ASM']['n_d'])
+        self._ui.profileModelLineEdit.setText(self._step._segParams['data_files']['ppc_filename'])
         self._ui.searchDistSpinBox.setValue(self._step._segParams['ASM']['n_pad'])
         self._ui.maxItSpinBox.setValue(self._step._segParams['ASM']['max_it'])
 
@@ -195,7 +218,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._addObjectToTable(0, 'image', self._objects.getObject('image'))
         self._addObjectToTable(1, 'Initial Model', self._objects.getObject('Initial Model'))
         self._addObjectToTable(2, 'Segmented Model', self._objects.getObject('Segmented Model'), checked=False)
-        self._addObjectToTable(3, 'Segmented Points', self._objects.getObject('Segmented Points'), checked=False)
+        # self._addObjectToTable(3, 'Segmented Points', self._objects.getObject('Segmented Points'), checked=False)
         # if self._landmarks is not None:
         #     r = 3
         #     for ln in self._landmarkNames:
@@ -256,7 +279,10 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
     def _segButtonClicked(self):
         self._saveConfig()
-        self._objects.removeObject('Segmented Points')
+        try:
+            self._objects.removeObject('Segmented Points')
+        except ValueError:
+            pass
         self._worker.start()
         self._segLockUI()
 
@@ -269,7 +295,11 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
         # update fitted GF
         segObj = self._objects.getObject('Segmented Model')
-        segObj.updateGeometry(self._step._model.get_field_parameters(), self._scene)
+        modelImage = fst.makeImageSpaceGF(self._step._scan,
+                                          self._step._model,
+                                          self._step._segParams['image']['neg_spacing'],
+                                          self._step._segParams['image']['z_shift'])
+        segObj.updateGeometry(modelImage.get_field_parameters(), self._scene)
         segTableItem = self._ui.tableWidget.item(2, self.objectTableHeaderColumns['visible'])
         segTableItem.setCheckState(Qt.Checked)
 
@@ -281,18 +311,25 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
         self._objects.addObject('Segmented Points',
             MayaviViewerDataPoints('Segmented Points',
-            self._pointCloudFinal,
-            renderArgs=self._pointCloudRenderArgs))
+                self._step._scan.coord2Index(self._pointCloudFinal,
+                                             self._step._segParams['image']['z_shift'],
+                                             self._step._segParams['image']['neg_spacing'],
+                                             False),
+                renderArgs=self._pointCloudRenderArgs
+                )
+            )
 
         # unlock reg ui
         self._fitUnlockUI()
 
-    def _fitLockUI(self):
+    def _segLockUI(self):
         self._ui.pcsToFitSpinBox.setEnabled(False)
         self._ui.mWeightDblSpinBox.setEnabled(False)
-        self._ui.surfDiscSpinBox.setEnabled(False)
-        self._ui.pExtDblSpinBox1.setEnaled(False)
-        self._ui.pExtDblSpinBox2.setEnaled(False)
+        self._ui.surfDiscSpinBox1.setEnabled(False)
+        self._ui.surfDiscSpinBox2.setEnabled(False)
+        self._ui.pExtDblSpinBox1.setEnabled(False)
+        self._ui.pExtDblSpinBox2.setEnabled(False)
+        self._ui.profileSamplesSpinBox.setEnabled(False)
         self._ui.profileModelButton.setEnabled(False)
         self._ui.profileModelLineEdit.setEnabled(False)
         self._ui.searchDistSpinBox.setEnabled(False)
@@ -302,12 +339,14 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._ui.acceptButton.setEnabled(False)
         self._ui.abortButton.setEnabled(False)
 
-    def _fitUnlockUI(self):
+    def _segUnlockUI(self):
         self._ui.pcsToFitSpinBox.setEnabled(True)
         self._ui.mWeightDblSpinBox.setEnabled(True)
-        self._ui.surfDiscSpinBox.setEnabled(True)
-        self._ui.pExtDblSpinBox1.setEnaled(True)
-        self._ui.pExtDblSpinBox2.setEnaled(True)
+        self._ui.surfDiscSpinBox1.setEnabled(True)
+        self._ui.surfDiscSpinBox2.setEnabled(True)
+        self._ui.pExtDblSpinBox1.setEnabled(True)
+        self._ui.pExtDblSpinBox2.setEnabled(True)
+        self._ui.profileSamplesSpinBox.setEnabled(True)
         self._ui.profileModelButton.setEnabled(True)
         self._ui.profileModelLineEdit.setEnabled(True)
         self._ui.searchDistSpinBox.setEnabled(True)
@@ -327,7 +366,11 @@ class MayaviASMSegmentationViewerWidget(QDialog):
     def _reset(self):
         self._resetCallback()
         segObj = self._objects.getObject('Segmented Model')
-        segObj.updateGeometry(self._step._modelInit.field_parameters.copy(), self._scene)
+        modelImage = fst.makeImageSpaceGF(self._step._scan,
+                                          self._step._modelInit,
+                                          self._step._segParams['image']['neg_spacing'],
+                                          self._step._segParams['image']['z_shift'])
+        segObj.updateGeometry(modelImage.field_parameters.copy(), self._scene)
         segTableItem = self._ui.tableWidget.item(2, self.objectTableHeaderColumns['visible'])
         segTableItem.setCheckState(Qt.Unchecked)
 
@@ -339,6 +382,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
     def _accept(self):
         self._close()
+        self._step.doneExecution()
 
     def _abort(self):
         self._reset()

@@ -8,13 +8,13 @@ from PySide import QtGui
 from PySide import QtCore
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
-# from mapclientplugins.asmsegmentationstep.configuredialog import ConfigureDialog
-# from mapclientplugins.asmsegmentationstep.mayaviasmsegmentationviewerwidget import MayaviASMSegmentationViewerWidget
-# from mapclientplugins.asmsegmentationstep import asmseg
+from mapclientplugins.asmsegmentationstep.configuredialog import ConfigureDialog
+from mapclientplugins.asmsegmentationstep.mayaviasmsegmentationviewerwidget import MayaviASMSegmentationViewerWidget
+from mapclientplugins.asmsegmentationstep import asmseg
 
-from configuredialog import ConfigureDialog
-from mayaviasmsegmentationviewerwidget import MayaviASMSegmentationViewerWidget
-import asmseg
+# from configuredialog import ConfigureDialog
+# from mayaviasmsegmentationviewerwidget import MayaviASMSegmentationViewerWidget
+# import asmseg
 
 import configobj
 import copy
@@ -89,8 +89,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
             self._setCurrentWidget(self._widget)
         else:
             self._segment()
-
-        self._doneExecution()
+            self._doneExecution()
 
     def _loadParams(self):
         if self._config['paramFileLoc']=='':
@@ -126,6 +125,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         elif index == 1:
             self._model = dataIn # ju#fieldworkmodel
             self._modelInit = copy.deepcopy(self._model)
+            self._modelFinal = copy.deepcopy(self._model)
         else:
             self._shapepcs = dataIn # ju#principalcomponents
 
