@@ -55,7 +55,6 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         self._config['ppcFileLoc'] = ''
         self._config['GUI'] = 'True'
 
-        self._gui = True
         self._scan = None
         self._shapepcs = None
         self._model = None
@@ -77,7 +76,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         # load params file
         self._loadParams()
 
-        if self._gui:
+        if self._config['GUI']=='True':
             # start gui
             self._widget = MayaviASMSegmentationViewerWidget(self)
             
@@ -113,6 +112,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         self._pointCloudFinal = segPoints
         self._transformFinal = segTransform
         self._asmOutput = asmOutput
+        return segModel, segPoints, segTransform, asmOutput
 
     def setPortData(self, index, dataIn):
         '''
@@ -188,10 +188,6 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         conf.setValue('identifier', self._config['identifier'])
         conf.setValue('paramFileLoc', self._config['paramFileLoc'])
         conf.setValue('ppcFileLoc', self._config['ppcFileLoc'])
-        if self._gui:
-            self._config['GUI'] = 'True'
-        else:
-            self._config['GUI'] = 'False'
         conf.setValue('GUI', self._config['GUI'])
         conf.endGroup()
 
@@ -216,10 +212,5 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
         self._configured = d.validate()
-
-        if self._config['GUI']=='True':
-            self._gui = True
-        else:
-            self._gui = False
 
 

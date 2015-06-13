@@ -59,7 +59,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
     defaultColor = colours['bone']
     objectTableHeaderColumns = {'visible':0}
     backgroundColour = (0.0,0.0,0.0)
-    _pointCloudRenderArgs = {'mode':'point', 'scale_factor':0.5, 'color':(0,1,0)}
+    _pointCloudRenderArgs = {'mode':'sphere', 'scale_factor':1.0, 'color':(0,1,0)}
     _modelInitRenderArgs = {'color':(1,0,0)}
     _modelFinalRenderArgs = {'color':(1,1,0)}
     # _landmarkRenderArgs = {'mode':'sphere', 'scale_factor':5.0, 'color':(0,1,0)}
@@ -171,6 +171,26 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         #                                                      )
         #                             )
 
+    def _initialiseObjectTable(self):
+
+        # self._ui.tableWidget.setRowCount(self._objects.getNumberOfObjects())
+        self._ui.tableWidget.setRowCount(4)
+        self._ui.tableWidget.verticalHeader().setVisible(False)
+        self._ui.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._ui.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._ui.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)
+        
+        # self._addObjectToTable(0, 'image', self._objects.getObject('image'))
+        # self._addObjectToTable(1, 'Initial Model', self._objects.getObject('Initial Model'))
+        # self._addObjectToTable(2, 'Segmented Model', self._objects.getObject('Segmented Model'), checked=False)
+        # self._addObjectToTable(3, 'Segmented Points', self._objects.getObject('Segmented Points'), checked=False)
+        
+        self._addObjectToTable(0, 'image', checked=True)
+        self._addObjectToTable(1, 'Initial Model', checked=True)
+        self._addObjectToTable(2, 'Segmented Model', checked=False)
+        self._addObjectToTable(3, 'Segmented Points', checked=False)
+
+        self._ui.tableWidget.resizeColumnToContents(self.objectTableHeaderColumns['visible'])
 
     def _setupGui(self):
         self._ui.pcsToFitSpinBox.setSingleStep(1)
@@ -206,31 +226,8 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._ui.profileModelLineEdit.setText(self._step._segParams['data_files']['ppc_filename'])
         self._ui.searchDistSpinBox.setValue(self._step._segParams['ASM']['n_pad'])
         self._ui.maxItSpinBox.setValue(self._step._segParams['ASM']['max_it'])
-
-    def _initialiseObjectTable(self):
-
-        self._ui.tableWidget.setRowCount(self._objects.getNumberOfObjects())
-        self._ui.tableWidget.verticalHeader().setVisible(False)
-        self._ui.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self._ui.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self._ui.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)
         
-        self._addObjectToTable(0, 'image', self._objects.getObject('image'))
-        self._addObjectToTable(1, 'Initial Model', self._objects.getObject('Initial Model'))
-        self._addObjectToTable(2, 'Segmented Model', self._objects.getObject('Segmented Model'), checked=False)
-        # self._addObjectToTable(3, 'Segmented Points', self._objects.getObject('Segmented Points'), checked=False)
-        # if self._landmarks is not None:
-        #     r = 3
-        #     for ln in self._landmarkNames:
-        #         self._addObjectToTable(r, ln, self._objects.getObject(ln))
-        #         r += 1
-
-        self._ui.tableWidget.resizeColumnToContents(self.objectTableHeaderColumns['visible'])
-        
-    def _addObjectToTable(self, row, name, obj, checked=True):
-        typeName = obj.typeName
-        # print typeName
-        # print name
+    def _addObjectToTable(self, row, name, checked=True):
         tableItem = QTableWidgetItem(name)
         if checked:
             tableItem.setCheckState(Qt.Checked)
@@ -258,14 +255,18 @@ class MayaviASMSegmentationViewerWidget(QDialog):
             # print 'visibleboxchanged visible', visible
 
             # toggle visibility
-            obj = self._objects.getObject(name)
-            # print obj.name
-            if obj.sceneObject:
-                # print 'changing existing visibility'
-                obj.setVisibility(visible)
+            try:
+                obj = self._objects.getObject(name)
+            except KeyError:
+                print('No scene object {}'.format(name))
             else:
-                # print 'drawing new'
-                obj.draw(self._scene)
+                # print obj.name
+                if obj.sceneObject:
+                    # print 'changing existing visibility'
+                    obj.setVisibility(visible)
+                else:
+                    # print 'drawing new'
+                    obj.draw(self._scene)
 
     def _getSelectedObjectName(self):
         return self.selectedObjectName
@@ -273,9 +274,9 @@ class MayaviASMSegmentationViewerWidget(QDialog):
     def _getSelectedScalarName(self):
         return 'none'
 
-    def drawObjects(self):
-        for name in self._objects.getObjectNames():
-            self._objects.getObject(name).draw(self._scene)
+    # def drawObjects(self):
+    #     for name in self._objects.getObjectNames():
+    #         self._objects.getObject(name).draw(self._scene)
 
     def _segButtonClicked(self):
         self._saveConfig()
@@ -284,7 +285,12 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         except ValueError:
             pass
         self._worker.start()
+        print('g')
         self._segLockUI()
+        print('h')
+
+        # output = self._step._segment()
+        # self._segUpdate(output)
 
     def _segUpdate(self, output):
         # update error fields
@@ -311,16 +317,21 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
         self._objects.addObject('Segmented Points',
             MayaviViewerDataPoints('Segmented Points',
-                self._step._scan.coord2Index(self._pointCloudFinal,
+                self._step._scan.coord2Index(self._step._pointCloudFinal,
                                              self._step._segParams['image']['z_shift'],
                                              self._step._segParams['image']['neg_spacing'],
                                              False),
-                renderArgs=self._pointCloudRenderArgs
+                renderArgs=self._pointCloudRenderArgs,
                 )
             )
+        # segPointsObj = self._objects.getObject('Segmented Points')
+        # segPointsObj.draw(self._scene)
+        segPointsTableItem = self._ui.tableWidget.item(3, self.objectTableHeaderColumns['visible'])
+        segPointsTableItem.setCheckState(Qt.Checked)
+        self._refresh()
 
         # unlock reg ui
-        self._fitUnlockUI()
+        self._segUnlockUI()
 
     def _segLockUI(self):
         self._ui.pcsToFitSpinBox.setEnabled(False)
@@ -364,7 +375,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         segTableItem.setCheckState(Qt.Checked)
 
     def _reset(self):
-        self._resetCallback()
+        # self._resetCallback()
         segObj = self._objects.getObject('Segmented Model')
         modelImage = fst.makeImageSpaceGF(self._step._scan,
                                           self._step._modelInit,
@@ -373,6 +384,8 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         segObj.updateGeometry(modelImage.field_parameters.copy(), self._scene)
         segTableItem = self._ui.tableWidget.item(2, self.objectTableHeaderColumns['visible'])
         segTableItem.setCheckState(Qt.Unchecked)
+        segPointsTableItem = self._ui.tableWidget.item(3, self.objectTableHeaderColumns['visible'])
+        segPointsTableItem.setCheckState(Qt.Unchecked)
 
         self._objects.removeObject('Segmented Points')
 
@@ -382,7 +395,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
     def _accept(self):
         self._close()
-        self._step.doneExecution()
+        self._step._doneExecution()
 
     def _abort(self):
         self._reset()
@@ -399,14 +412,18 @@ class MayaviASMSegmentationViewerWidget(QDialog):
             tableItem = self._ui.tableWidget.item(r, self.objectTableHeaderColumns['visible'])
             name = tableItem.text()
             visible = tableItem.checkState().name=='Checked'
-            obj = self._objects.getObject(name)
-            # print obj.name
-            if obj.sceneObject:
-                # print 'changing existing visibility'
-                obj.setVisibility(visible)
+            try:
+                obj = self._objects.getObject(name)
+            except KeyError:
+                pass
             else:
-                # print 'drawing new'
-                obj.draw(self._scene)
+                # print obj.name
+                if obj.sceneObject:
+                    # print 'changing existing visibility'
+                    obj.setVisibility(visible)
+                else:
+                    # print 'drawing new'
+                    obj.draw(self._scene)
 
     def _saveScreenShot(self):
         filename = self._ui.screenshotFilenameLineEdit.text()

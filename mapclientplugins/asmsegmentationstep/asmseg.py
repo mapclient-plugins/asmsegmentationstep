@@ -63,24 +63,11 @@ def segment(scan, model, shapepcs, config):
     if flipZ:
         scan.I = scan.I[:,:,::-1]
 
-    # load shape model
-    SSM = shapepcs
-
-    # load geometry model
-    model.set_field_parameters(SSM.getMean().reshape((3,-1,1)))
-    epi = model.getElementPointIPerTrueElement(
-            asmParams.GD, model.ensemble_field_function.mesh.elements.keys()
-            )
-
-    if verbose:
-        print 'loading data done (%5.2fs)'%(time.time()-tprev)
-    tprev = time.time()
-
     # run ASM function
     asmOutput, asm, GF, croppedScan,\
     meshEval, paramsEval, meshFit = fst.doASM(
                                         asmParams, scan, model, 'PCXiGrid',
-                                        'PCDPEP', asmParams.GD, SSM,
+                                        'PCDPEP', asmParams.GD, shapepcs,
                                         np.arange(asmShapeModes), None,
                                         asmFitMWeight, verbose=verbose,
                                         filterLandmarks=filterLandmarks,

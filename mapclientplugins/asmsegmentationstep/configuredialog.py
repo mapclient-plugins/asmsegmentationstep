@@ -5,7 +5,7 @@ from mapclientplugins.asmsegmentationstep.ui_configuredialog import Ui_Dialog
 # from ui_configuredialog import Ui_Dialog
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
-DEFAULT_STYLE_SHEET = ''
+DEFAULT_STYLE_SHEET = 'background-color: rgba(255, 255, 255, 50)'
 
 class ConfigureDialog(QtGui.QDialog):
     '''
