@@ -1,11 +1,12 @@
-
 import os
 from PySide2 import QtWidgets
 from mapclientplugins.asmsegmentationstep.ui_configuredialog import Ui_Dialog
+
 # from ui_configuredialog import Ui_Dialog
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = 'background-color: rgba(255, 255, 255, 50)'
+
 
 class ConfigureDialog(QtWidgets.QDialog):
     '''
@@ -17,7 +18,7 @@ class ConfigureDialog(QtWidgets.QDialog):
         Constructor
         '''
         QtWidgets.QDialog.__init__(self, parent)
-        
+
         self._ui = Ui_Dialog()
         self._ui.setupUi(self)
 
@@ -48,8 +49,9 @@ class ConfigureDialog(QtWidgets.QDialog):
         result = QtWidgets.QMessageBox.Yes
         if not self.validate():
             result = QtWidgets.QMessageBox.warning(self, 'Invalid Configuration',
-                'This configuration is invalid.  Unpredictable behaviour may result if you choose \'Yes\', are you sure you want to save this configuration?)',
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+                                                   'This configuration is invalid.  Unpredictable behaviour may result if you choose \'Yes\', are you sure you want to save this configuration?)',
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.No)
 
         if result == QtWidgets.QMessageBox.Yes:
             QtWidgets.QDialog.accept(self)
@@ -70,7 +72,7 @@ class ConfigureDialog(QtWidgets.QDialog):
             self._ui.idLineEdit.setStyleSheet(INVALID_STYLE_SHEET)
 
         # if empty, can use default
-        if self._ui.configLineEdit.text()!='':
+        if self._ui.configLineEdit.text() != '':
             configValid = os.path.exists(self._ui.configLineEdit.text())
         else:
             configValid = True
@@ -78,7 +80,7 @@ class ConfigureDialog(QtWidgets.QDialog):
             self._ui.configLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET)
         else:
             self._ui.configLineEdit.setStyleSheet(INVALID_STYLE_SHEET)
-            
+
         ppcValid = os.path.exists(self._ui.ppcLineEdit.text())
         if ppcValid:
             self._ui.ppcLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET)
@@ -119,7 +121,7 @@ class ConfigureDialog(QtWidgets.QDialog):
         self._ui.idLineEdit.setText(config['identifier'])
         self._ui.configLineEdit.setText(config['paramFileLoc'])
         self._ui.ppcLineEdit.setText(config['ppcFileLoc'])
-        if config['GUI']=='True':
+        if config['GUI'] == 'True':
             self._ui.guiCheckBox.setChecked(bool(True))
         else:
             self._ui.guiCheckBox.setChecked(bool(False))
