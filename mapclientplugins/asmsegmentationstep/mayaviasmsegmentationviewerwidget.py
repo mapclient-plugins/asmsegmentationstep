@@ -18,23 +18,17 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 import os
-os.environ['ETS_TOOLKIT'] = 'qt4'
+os.environ['ETS_TOOLKIT'] = 'qt'
 
-from PySide.QtGui import QDialog, QFileDialog, QDialogButtonBox,\
-                         QAbstractItemView, QTableWidgetItem,\
-                         QDoubleValidator
-from PySide.QtCore import Qt, QThread, Signal
+from PySide2.QtWidgets import QDialog, QFileDialog, QAbstractItemView, QTableWidgetItem
+from PySide2.QtCore import Qt, QThread, Signal
 
 from mapclientplugins.asmsegmentationstep.ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
 # from ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
 
-from traits.api import HasTraits, Instance, on_trait_change, \
-    Int, Dict
-
 from mappluginutils.mayaviviewer import MayaviViewerObjectsContainer, MayaviViewerDataPoints,\
     MayaviViewerFieldworkModel, MayaviViewerLandmark, MayaviViewerImagePlane, colours
 
-import copy
 import numpy as np
 from gias.musculoskeletal import fw_segmentation_tools as fst
 
