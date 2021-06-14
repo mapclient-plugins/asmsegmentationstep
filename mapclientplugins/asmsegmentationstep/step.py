@@ -173,7 +173,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         '''
         self._config['identifier'] = identifier
 
-    def serialize(self, location):
+    def serialize(self):
         '''
         Add code to serialize this step to disk.  The filename should
         use the step identifier (received from getIdentifier()) to keep it
@@ -181,7 +181,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         disk is:
             filename = getIdentifier() + '.conf'
         '''
-        configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
+        configuration_file = os.path.join(self._location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
         conf.setValue('identifier', self._config['identifier'])
@@ -190,14 +190,14 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         conf.setValue('GUI', self._config['GUI'])
         conf.endGroup()
 
-    def deserialize(self, location):
+    def deserialize(self, string):
         '''
         Add code to deserialize this step from disk.  As with the serialize 
         method the filename should use the step identifier.  Obviously the 
         filename used here should be the same as the one used by the
         serialize method.
         '''
-        configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
+        configuration_file = os.path.join(self._location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
         self._config['identifier'] = conf.value('identifier', '')

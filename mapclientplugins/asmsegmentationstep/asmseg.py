@@ -5,8 +5,8 @@ implemented in GIAS and using Fieldwork models.
 
 import numpy as np
 import time
-from gias.musculoskeletal import fw_segmentation_tools as fst
-from gias.image_analysis import asm_segmentation as ASM
+from gias2.image_analysis import fw_segmentation_tools as fst
+from gias2.image_analysis import asm_segmentation as ASM
 
 
 class ParameterError(Exception):
@@ -17,8 +17,7 @@ def segment(scan, model, shapepcs, config):
     # parse configs
     verbose = config['general']['verbose']
     if verbose:
-        print
-        config
+        print(config)
 
     flipX = config['image']['flip_x']
     flipY = config['image']['flip_y']
