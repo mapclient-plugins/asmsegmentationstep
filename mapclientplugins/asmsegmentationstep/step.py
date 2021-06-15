@@ -1,11 +1,9 @@
-
 '''
 MAP Client Plugin Step
 '''
 import os
 
-from PySide import QtGui
-from PySide import QtCore
+from PySide2 import QtCore
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.asmsegmentationstep.configuredialog import ConfigureDialog
@@ -19,6 +17,7 @@ from mapclientplugins.asmsegmentationstep import asmseg
 import configobj
 import copy
 
+
 class ASMSegmentationStep(WorkflowStepMountPoint):
     '''
     Skeleton step which is intended to be a helpful starting point
@@ -27,7 +26,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
 
     def __init__(self, location):
         super(ASMSegmentationStep, self).__init__('ASM Segmentation', location)
-        self._configured = False # A step cannot be executed until it has been configured.
+        self._configured = False  # A step cannot be executed until it has been configured.
         self._category = 'Segmentation'
         # Add any other initialisation code here:
         # Ports:
@@ -76,10 +75,10 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         # load params file
         self._loadParams()
 
-        if self._config['GUI']=='True':
+        if self._config['GUI'] == 'True':
             # start gui
             self._widget = MayaviASMSegmentationViewerWidget(self)
-            
+
             # self._widget._ui.registerButton.clicked.connect(self._register)
             # self._widget._ui.acceptButton.clicked.connect(self._doneExecution)
             # self._widget._ui.abortButton.clicked.connect(self._abort)
@@ -91,7 +90,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
             self._doneExecution()
 
     def _loadParams(self):
-        if self._config['paramFileLoc']=='':
+        if self._config['paramFileLoc'] == '':
             paramFileLoc = os.path.join(os.path.dirname(__file__), 'default_params.ini')
             self._segParams = configobj.ConfigObj(paramFileLoc, unrepr=True)
         else:
@@ -100,13 +99,13 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         self._segParams['data_files']['ppc_filename'] = self._config['ppcFileLoc']
 
     def _segment(self):
-        segModel, segPoints,\
+        segModel, segPoints, \
         segTransform, asmOutput = asmseg.segment(
-                                                 self._scan,
-                                                 self._model,
-                                                 self._shapepcs, 
-                                                 self._segParams
-                                                 )
+            self._scan,
+            self._model,
+            self._shapepcs,
+            self._segParams
+        )
         self._modelFinal = segModel
         self._model = segModel
         self._pointCloudFinal = segPoints
@@ -121,13 +120,13 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         uses port for this step then the index can be ignored.
         '''
         if index == 0:
-            self._scan = dataIn # ju#scan
+            self._scan = dataIn  # ju#scan
         elif index == 1:
-            self._model = dataIn # ju#fieldworkmodel
+            self._model = dataIn  # ju#fieldworkmodel
             self._modelInit = copy.deepcopy(self._model)
             self._modelFinal = copy.deepcopy(self._model)
         else:
-            self._shapepcs = dataIn # ju#principalcomponents
+            self._shapepcs = dataIn  # ju#principalcomponents
 
     def getPortData(self, index):
         '''
@@ -150,15 +149,15 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         '''
-        dlg = ConfigureDialog()
+        dlg = ConfigureDialog(self._main_window)
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
         dlg.setModal(True)
-        
+
         if dlg.exec_():
             self._config = dlg.getConfig()
-        
+
         self._configured = dlg.validate()
         self._configuredObserver()
 
@@ -174,7 +173,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         '''
         self._config['identifier'] = identifier
 
-    def serialize(self, location):
+    def serialize(self):
         '''
         Add code to serialize this step to disk.  The filename should
         use the step identifier (received from getIdentifier()) to keep it
@@ -182,7 +181,7 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         disk is:
             filename = getIdentifier() + '.conf'
         '''
-        configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
+        configuration_file = os.path.join(self._location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
         conf.setValue('identifier', self._config['identifier'])
@@ -191,15 +190,14 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         conf.setValue('GUI', self._config['GUI'])
         conf.endGroup()
 
-
-    def deserialize(self, location):
+    def deserialize(self, string):
         '''
         Add code to deserialize this step from disk.  As with the serialize 
         method the filename should use the step identifier.  Obviously the 
         filename used here should be the same as the one used by the
         serialize method.
         '''
-        configuration_file = os.path.join(location, self.getIdentifier() + '.conf')
+        configuration_file = os.path.join(self._location, self.getIdentifier() + '.conf')
         conf = QtCore.QSettings(configuration_file, QtCore.QSettings.IniFormat)
         conf.beginGroup('config')
         self._config['identifier'] = conf.value('identifier', '')
@@ -212,5 +210,3 @@ class ASMSegmentationStep(WorkflowStepMountPoint):
         d.identifierOccursCount = self._identifierOccursCount
         d.setConfig(self._config)
         self._configured = d.validate()
-
-

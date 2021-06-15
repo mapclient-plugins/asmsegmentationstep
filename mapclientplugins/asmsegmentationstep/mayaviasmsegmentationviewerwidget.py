@@ -18,28 +18,23 @@ This file is part of MAP Client. (http://launchpad.net/mapclient)
     along with MAP Client.  If not, see <http://www.gnu.org/licenses/>..
 '''
 import os
-os.environ['ETS_TOOLKIT'] = 'qt4'
 
-from PySide.QtGui import QDialog, QFileDialog, QDialogButtonBox,\
-                         QAbstractItemView, QTableWidgetItem,\
-                         QDoubleValidator
-from PySide.QtCore import Qt, QThread, Signal
+os.environ['ETS_TOOLKIT'] = 'qt'
+
+from PySide2.QtWidgets import QDialog, QFileDialog, QAbstractItemView, QTableWidgetItem
+from PySide2.QtCore import Qt, QThread, Signal
 
 from mapclientplugins.asmsegmentationstep.ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
-# from ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
 
-from traits.api import HasTraits, Instance, on_trait_change, \
-    Int, Dict
+from gias2.mappluginutils.mayaviviewer import MayaviViewerObjectsContainer, MayaviViewerDataPoints, \
+    MayaviViewerFieldworkModel, MayaviViewerImagePlane, colours
 
-from mappluginutils.mayaviviewer import MayaviViewerObjectsContainer, MayaviViewerDataPoints,\
-    MayaviViewerFieldworkModel, MayaviViewerLandmark, MayaviViewerImagePlane, colours
-
-import copy
 import numpy as np
-from gias.musculoskeletal import fw_segmentation_tools as fst
+from gias2.image_analysis import fw_segmentation_tools as fst
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''
+
 
 class _ExecThread(QThread):
     update = Signal(tuple)
@@ -52,19 +47,20 @@ class _ExecThread(QThread):
         output = self.func()
         self.update.emit(output)
 
+
 class MayaviASMSegmentationViewerWidget(QDialog):
     '''
     Configure dialog to present the user with the options to configure this step.
     '''
     defaultColor = colours['bone']
-    objectTableHeaderColumns = {'visible':0}
-    backgroundColour = (0.0,0.0,0.0)
-    _pointCloudRenderArgs = {'mode':'sphere', 'scale_factor':1.0, 'color':(0,1,0)}
-    _modelInitRenderArgs = {'color':(1,0,0)}
-    _modelFinalRenderArgs = {'color':(1,1,0)}
+    objectTableHeaderColumns = {'visible': 0}
+    backgroundColour = (0.0, 0.0, 0.0)
+    _pointCloudRenderArgs = {'mode': 'sphere', 'scale_factor': 1.0, 'color': (0, 1, 0)}
+    _modelInitRenderArgs = {'color': (1, 0, 0)}
+    _modelFinalRenderArgs = {'color': (1, 1, 0)}
     # _landmarkRenderArgs = {'mode':'sphere', 'scale_factor':5.0, 'color':(0,1,0)}
-    _imageRenderArgs = {'vmax':2000, 'vmin':-200}
-    _GFD = [8,8]
+    _imageRenderArgs = {'vmax': 2000, 'vmin': -200}
+    _GFD = [8, 8]
 
     def __init__(self, step, parent=None):
         '''
@@ -99,7 +95,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._ui.tableWidget.itemClicked.connect(self._tableItemClicked)
         self._ui.tableWidget.itemChanged.connect(self._visibleBoxChanged)
         self._ui.screenshotSaveButton.clicked.connect(self._saveScreenShot)
-        
+
         self._ui.segButton.clicked.connect(self._segButtonClicked)
         self._ui.resetButton.clicked.connect(self._reset)
         self._ui.abortButton.clicked.connect(self._abort)
@@ -133,12 +129,12 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
         I = np.array(self._step._scan.I)
         if self._step._segParams['image']['flip_x']:
-            I = I[::-1,:,:]
+            I = I[::-1, :, :]
         if self._step._segParams['image']['flip_y']:
-            I = I[:,::-1,:]
+            I = I[:, ::-1, :]
         if self._step._segParams['image']['flip_z']:
-            I = I[:,:,::-1]
-        self._objects.addObject('image', 
+            I = I[:, :, ::-1]
+        self._objects.addObject('image',
                                 MayaviViewerImagePlane('image',
                                                        I,
                                                        renderArgs=self._imageRenderArgs))
@@ -146,8 +142,10 @@ class MayaviASMSegmentationViewerWidget(QDialog):
                                 MayaviViewerFieldworkModel('Initial Model',
                                                            fst.makeImageSpaceGF(self._step._scan,
                                                                                 self._step._modelInit,
-                                                                                self._step._segParams['image']['neg_spacing'],
-                                                                                self._step._segParams['image']['z_shift']
+                                                                                self._step._segParams['image'][
+                                                                                    'neg_spacing'],
+                                                                                self._step._segParams['image'][
+                                                                                    'z_shift']
                                                                                 ),
                                                            self._GFD,
                                                            renderArgs=self._modelInitRenderArgs))
@@ -155,8 +153,10 @@ class MayaviASMSegmentationViewerWidget(QDialog):
                                 MayaviViewerFieldworkModel('Segmented Model',
                                                            fst.makeImageSpaceGF(self._step._scan,
                                                                                 self._step._modelFinal,
-                                                                                self._step._segParams['image']['neg_spacing'],
-                                                                                self._step._segParams['image']['z_shift']
+                                                                                self._step._segParams['image'][
+                                                                                    'neg_spacing'],
+                                                                                self._step._segParams['image'][
+                                                                                    'z_shift']
                                                                                 ),
                                                            self._GFD,
                                                            renderArgs=self._modelFinalRenderArgs))
@@ -179,12 +179,12 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._ui.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._ui.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._ui.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        
+
         # self._addObjectToTable(0, 'image', self._objects.getObject('image'))
         # self._addObjectToTable(1, 'Initial Model', self._objects.getObject('Initial Model'))
         # self._addObjectToTable(2, 'Segmented Model', self._objects.getObject('Segmented Model'), checked=False)
         # self._addObjectToTable(3, 'Segmented Points', self._objects.getObject('Segmented Points'), checked=False)
-        
+
         self._addObjectToTable(0, 'image', checked=True)
         self._addObjectToTable(1, 'Initial Model', checked=True)
         self._addObjectToTable(2, 'Segmented Model', checked=False)
@@ -226,7 +226,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._ui.profileModelLineEdit.setText(self._step._segParams['data_files']['ppc_filename'])
         self._ui.searchDistSpinBox.setValue(self._step._segParams['ASM']['n_pad'])
         self._ui.maxItSpinBox.setValue(self._step._segParams['ASM']['max_it'])
-        
+
     def _addObjectToTable(self, row, name, checked=True):
         tableItem = QTableWidgetItem(name)
         if checked:
@@ -238,18 +238,16 @@ class MayaviASMSegmentationViewerWidget(QDialog):
 
     def _tableItemClicked(self):
         selectedRow = self._ui.tableWidget.currentRow()
-        self.selectedObjectName = self._ui.tableWidget.item(selectedRow, self.objectTableHeaderColumns['visible']).text()
-        # self._populateScalarsDropDown(self.selectedObjectName)
-        # print selectedRow
-        # print self.selectedObjectName
+        self.selectedObjectName = self._ui.tableWidget.item(selectedRow,
+                                                            self.objectTableHeaderColumns['visible']).text()
 
     def _visibleBoxChanged(self, tableItem):
 
         # checked changed item is actually the checkbox
-        if tableItem.column()==self.objectTableHeaderColumns['visible']:
+        if tableItem.column() == self.objectTableHeaderColumns['visible']:
             # get visible status
             name = tableItem.text()
-            visible = tableItem.checkState().name=='Checked'
+            visible = tableItem.checkState().name == 'Checked'
 
             # print 'visibleboxchanged name', name
             # print 'visibleboxchanged visible', visible
@@ -297,7 +295,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         rmse = self._step._asmOutput['segRMS']
         pFrac = self._step._asmOutput['segPFrac']
         self._ui.RMSELineEdit.setText('{:6.4f}'.format(rmse))
-        self._ui.pFracLineEdit.setText('{:5.2f}'.format(pFrac*100.0))
+        self._ui.pFracLineEdit.setText('{:5.2f}'.format(pFrac * 100.0))
 
         # update fitted GF
         segObj = self._objects.getObject('Segmented Model')
@@ -316,14 +314,16 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         # segTableItem.setCheckState(Qt.Checked)
 
         self._objects.addObject('Segmented Points',
-            MayaviViewerDataPoints('Segmented Points',
-                self._step._scan.coord2Index(self._step._pointCloudFinal,
-                                             self._step._segParams['image']['z_shift'],
-                                             self._step._segParams['image']['neg_spacing'],
-                                             False),
-                renderArgs=self._pointCloudRenderArgs,
-                )
-            )
+                                MayaviViewerDataPoints('Segmented Points',
+                                                       self._step._scan.coord2Index(self._step._pointCloudFinal,
+                                                                                    self._step._segParams['image'][
+                                                                                        'z_shift'],
+                                                                                    self._step._segParams['image'][
+                                                                                        'neg_spacing'],
+                                                                                    False),
+                                                       renderArgs=self._pointCloudRenderArgs,
+                                                       )
+                                )
         # segPointsObj = self._objects.getObject('Segmented Points')
         # segPointsObj.draw(self._scene)
         segPointsTableItem = self._ui.tableWidget.item(3, self.objectTableHeaderColumns['visible'])
@@ -411,7 +411,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         for r in range(self._ui.tableWidget.rowCount()):
             tableItem = self._ui.tableWidget.item(r, self.objectTableHeaderColumns['visible'])
             name = tableItem.text()
-            visible = tableItem.checkState().name=='Checked'
+            visible = tableItem.checkState().name == 'Checked'
             try:
                 obj = self._objects.getObject(name)
             except KeyError:
@@ -429,4 +429,4 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         filename = self._ui.screenshotFilenameLineEdit.text()
         width = int(self._ui.screenshotPixelXLineEdit.text())
         height = int(self._ui.screenshotPixelYLineEdit.text())
-        self._scene.mlab.savefig( filename, size=( width, height ) )
+        self._scene.mlab.savefig(filename, size=(width, height))

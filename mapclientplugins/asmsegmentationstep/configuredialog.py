@@ -1,13 +1,14 @@
-
 import os
-from PySide import QtGui
+from PySide2 import QtWidgets
 from mapclientplugins.asmsegmentationstep.ui_configuredialog import Ui_Dialog
+
 # from ui_configuredialog import Ui_Dialog
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = 'background-color: rgba(255, 255, 255, 50)'
 
-class ConfigureDialog(QtGui.QDialog):
+
+class ConfigureDialog(QtWidgets.QDialog):
     '''
     Configure dialog to present the user with the options to configure this step.
     '''
@@ -16,8 +17,8 @@ class ConfigureDialog(QtGui.QDialog):
         '''
         Constructor
         '''
-        QtGui.QDialog.__init__(self, parent)
-        
+        QtWidgets.QDialog.__init__(self, parent)
+
         self._ui = Ui_Dialog()
         self._ui.setupUi(self)
 
@@ -45,14 +46,15 @@ class ConfigureDialog(QtGui.QDialog):
         Override the accept method so that we can confirm saving an
         invalid configuration.
         '''
-        result = QtGui.QMessageBox.Yes
+        result = QtWidgets.QMessageBox.Yes
         if not self.validate():
-            result = QtGui.QMessageBox.warning(self, 'Invalid Configuration',
-                'This configuration is invalid.  Unpredictable behaviour may result if you choose \'Yes\', are you sure you want to save this configuration?)',
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            result = QtWidgets.QMessageBox.warning(self, 'Invalid Configuration',
+                                                   'This configuration is invalid.  Unpredictable behaviour may result if you choose \'Yes\', are you sure you want to save this configuration?)',
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.No)
 
-        if result == QtGui.QMessageBox.Yes:
-            QtGui.QDialog.accept(self)
+        if result == QtWidgets.QMessageBox.Yes:
+            QtWidgets.QDialog.accept(self)
 
     def validate(self):
         '''
@@ -70,7 +72,7 @@ class ConfigureDialog(QtGui.QDialog):
             self._ui.idLineEdit.setStyleSheet(INVALID_STYLE_SHEET)
 
         # if empty, can use default
-        if self._ui.configLineEdit.text()!='':
+        if self._ui.configLineEdit.text() != '':
             configValid = os.path.exists(self._ui.configLineEdit.text())
         else:
             configValid = True
@@ -78,7 +80,7 @@ class ConfigureDialog(QtGui.QDialog):
             self._ui.configLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET)
         else:
             self._ui.configLineEdit.setStyleSheet(INVALID_STYLE_SHEET)
-            
+
         ppcValid = os.path.exists(self._ui.ppcLineEdit.text())
         if ppcValid:
             self._ui.ppcLineEdit.setStyleSheet(DEFAULT_STYLE_SHEET)
@@ -86,7 +88,7 @@ class ConfigureDialog(QtGui.QDialog):
             self._ui.ppcLineEdit.setStyleSheet(INVALID_STYLE_SHEET)
 
         valid = idValid and configValid and ppcValid
-        self._ui.buttonBox.button(QtGui.QDialogButtonBox.Ok).setEnabled(idValid)
+        self._ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(idValid)
 
         return valid
 
@@ -119,13 +121,13 @@ class ConfigureDialog(QtGui.QDialog):
         self._ui.idLineEdit.setText(config['identifier'])
         self._ui.configLineEdit.setText(config['paramFileLoc'])
         self._ui.ppcLineEdit.setText(config['ppcFileLoc'])
-        if config['GUI']=='True':
+        if config['GUI'] == 'True':
             self._ui.guiCheckBox.setChecked(bool(True))
         else:
             self._ui.guiCheckBox.setChecked(bool(False))
 
     def _configClicked(self):
-        location = QtGui.QFileDialog.getOpenFileName(self, 'Select File Location', self._previousConfig)
+        location = QtWidgets.QFileDialog.getOpenFileName(self, 'Select File Location', self._previousConfig)
         if location[0]:
             self._previousConfig = location[0]
             self._ui.configLineEdit.setText(location[0])
@@ -134,7 +136,7 @@ class ConfigureDialog(QtGui.QDialog):
         self.validate()
 
     def _ppcClicked(self):
-        location = QtGui.QFileDialog.getOpenFileName(self, 'Select File Location', self._previousPPC)
+        location = QtWidgets.QFileDialog.getOpenFileName(self, 'Select File Location', self._previousPPC)
         if location[0]:
             self._previousConfig = location[0]
             self._ui.ppcLineEdit.setText(location[0])
