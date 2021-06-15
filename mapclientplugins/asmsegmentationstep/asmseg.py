@@ -2,9 +2,9 @@
 Active shape model automatic segmentation
 implemented in GIAS and using Fieldwork models.
 """
-
 import numpy as np
 import time
+
 from gias2.image_analysis import fw_segmentation_tools as fst
 from gias2.image_analysis import asm_segmentation as ASM
 
@@ -84,8 +84,7 @@ def segment(scan, model, shapepcs, config):
     model.set_field_parameters(paramsEval(meshParamsASM))
 
     if verbose:
-        print
-        'ASM done (%5.2fs)' % (time.time() - tprev)
+        print('ASM done (%5.2fs)' % (time.time() - tprev))
 
     # unflip image if fliped
     if flipX:
