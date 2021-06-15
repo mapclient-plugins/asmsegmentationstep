@@ -25,13 +25,11 @@ from PySide2.QtWidgets import QDialog, QFileDialog, QAbstractItemView, QTableWid
 from PySide2.QtCore import Qt, QThread, Signal
 
 from mapclientplugins.asmsegmentationstep.ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
-# from ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
 
 from gias2.mappluginutils.mayaviviewer import MayaviViewerObjectsContainer, MayaviViewerDataPoints, \
     MayaviViewerFieldworkModel, MayaviViewerImagePlane, colours
 
 import numpy as np
-#from gias2.musculoskeletal import fw_segmentation_tools as fst
 from gias2.image_analysis import fw_segmentation_tools as fst
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
@@ -242,9 +240,6 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         selectedRow = self._ui.tableWidget.currentRow()
         self.selectedObjectName = self._ui.tableWidget.item(selectedRow,
                                                             self.objectTableHeaderColumns['visible']).text()
-        # self._populateScalarsDropDown(self.selectedObjectName)
-        # print selectedRow
-        # print self.selectedObjectName
 
     def _visibleBoxChanged(self, tableItem):
 
