@@ -21,8 +21,8 @@ import os
 
 os.environ['ETS_TOOLKIT'] = 'qt'
 
-from PySide2.QtWidgets import QDialog, QFileDialog, QAbstractItemView, QTableWidgetItem
-from PySide2.QtCore import Qt, QThread, Signal
+from PySide6.QtWidgets import QDialog, QFileDialog, QAbstractItemView, QTableWidgetItem
+from PySide6.QtCore import Qt, QThread, Signal
 
 from mapclientplugins.asmsegmentationstep.ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
 

@@ -3,7 +3,7 @@ MAP Client Plugin Step
 '''
 import os
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.asmsegmentationstep.configuredialog import ConfigureDialog

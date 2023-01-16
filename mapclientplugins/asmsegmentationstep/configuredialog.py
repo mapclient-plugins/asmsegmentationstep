@@ -1,5 +1,5 @@
 import os
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 from mapclientplugins.asmsegmentationstep.ui_configuredialog import Ui_Dialog
 
 # from ui_configuredialog import Ui_Dialog
