@@ -26,11 +26,13 @@ from PySide2.QtCore import Qt, QThread, Signal
 
 from mapclientplugins.asmsegmentationstep.ui_mayaviasmsegmentationviewerwidget import Ui_Dialog
 
-from gias2.mappluginutils.mayaviviewer import MayaviViewerObjectsContainer, MayaviViewerDataPoints, \
-    MayaviViewerFieldworkModel, MayaviViewerImagePlane, colours
+from gias3.mapclientpluginutilities.viewers.mayaviviewerdatapoints import MayaviViewerDataPoints
+from gias3.mapclientpluginutilities.viewers.mayaviviewerimageplane import MayaviViewerImagePlane
+from gias3.mapclientpluginutilities.viewers.mayaviviewerfieldworkmodel import MayaviViewerFieldworkModel
+from gias3.mapclientpluginutilities.viewers.mayaviviewerobjects import MayaviViewerObjectsContainer, colours
 
 import numpy as np
-from gias2.image_analysis import fw_segmentation_tools as fst
+from gias3.image_analysis import fw_segmentation_tools as fst
 
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 DEFAULT_STYLE_SHEET = ''

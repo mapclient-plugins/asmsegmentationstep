@@ -5,8 +5,8 @@ implemented in GIAS and using Fieldwork models.
 import numpy as np
 import time
 
-from gias2.image_analysis import fw_segmentation_tools as fst
-from gias2.image_analysis import asm_segmentation as ASM
+from gias3.image_analysis import fw_segmentation_tools as fst
+from gias3.image_analysis import asm_segmentation as ASM
 
 
 class ParameterError(Exception):
