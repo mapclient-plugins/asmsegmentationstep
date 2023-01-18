@@ -139,7 +139,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
         self._objects.addObject('image',
                                 MayaviViewerImagePlane('image',
                                                        I,
-                                                       renderArgs=self._imageRenderArgs))
+                                                       render_args=self._imageRenderArgs))
         self._objects.addObject('Initial Model',
                                 MayaviViewerFieldworkModel('Initial Model',
                                                            fst.makeImageSpaceGF(self._step._scan,
@@ -150,7 +150,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
                                                                                     'z_shift']
                                                                                 ),
                                                            self._GFD,
-                                                           renderArgs=self._modelInitRenderArgs))
+                                                           render_args=self._modelInitRenderArgs))
         self._objects.addObject('Segmented Model',
                                 MayaviViewerFieldworkModel('Segmented Model',
                                                            fst.makeImageSpaceGF(self._step._scan,
@@ -161,11 +161,11 @@ class MayaviASMSegmentationViewerWidget(QDialog):
                                                                                     'z_shift']
                                                                                 ),
                                                            self._GFD,
-                                                           renderArgs=self._modelFinalRenderArgs))
+                                                           render_args=self._modelFinalRenderArgs))
         # self._objects.addObject('Segmented Points',
         #                         MayaviViewerDataPoints('Segmented Points',
         #                                                    self._pointCloudFinal,
-        #                                                    renderArgs=self._pointCloudRenderArgs))
+        #                                                    render_args=self._pointCloudRenderArgs))
         # for ln in self._landmarkNames:
         #     self._objects.addObject(ln, MayaviViewerLandmark(ln,
         #                                                      self._landmarks[ln],
@@ -323,7 +323,7 @@ class MayaviASMSegmentationViewerWidget(QDialog):
                                                                                     self._step._segParams['image'][
                                                                                         'neg_spacing'],
                                                                                     False),
-                                                       renderArgs=self._pointCloudRenderArgs,
+                                                       render_args=self._pointCloudRenderArgs,
                                                        )
                                 )
         # segPointsObj = self._objects.getObject('Segmented Points')

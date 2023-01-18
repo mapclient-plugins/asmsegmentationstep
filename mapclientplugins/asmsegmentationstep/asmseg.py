@@ -72,11 +72,11 @@ def segment(scan, model, shapepcs, config):
         'PCDPEP', asmParams.GD, shapepcs,
         np.arange(asmShapeModes), None,
         asmFitMWeight, verbose=verbose,
-        filterLandmarks=filterLandmarks,
-        doScale=fitSize,
-        landmarkTargets=None,
-        landmarkEvaluator=None,
-        landmarkWeights=None,
+        filter_landmarks=filterLandmarks,
+        do_scale=fitSize,
+        landmark_targets=None,
+        landmark_evaluator=None,
+        landmark_weights=None,
     )
 
     dataASM = asmOutput['segData']
